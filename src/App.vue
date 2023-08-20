@@ -399,26 +399,26 @@ watch(showArrow, (newValue, oldValue) => {
         <div class="container" v-loading="loading">
           <svg id="mainsvg" class="svg" width="1200" height="620">
             <defs>
-              <marker
+              <marker 
                 id="triangle-gray"
-                viewBox="0 0 10 10"
-                refX="23"
+                viewBox="0 0 10 20"
+                refX="17"
                 refY="5"
                 markerUnits="strokeWidth"
-                markerWidth="5"
-                markerHeight="5"
+                markerWidth="10"
+                markerHeight="20"
                 orient="auto-start-reverse"
               >
                 <path d="M 0 0 L 10 5 L 0 10 z" fill="gray" />
               </marker>
               <marker
                 id="triangle-red"
-                viewBox="0 0 10 10"
-                refX="23"
+                viewBox="0 0 10 20"
+                refX="17"
                 refY="5"
                 markerUnits="strokeWidth"
-                markerWidth="5"
-                markerHeight="5"
+                markerWidth="10"
+                markerHeight="20"
                 orient="auto-start-reverse"
               >
                 <path d="M 0 0 L 10 5 L 0 10 z" fill="red" />
