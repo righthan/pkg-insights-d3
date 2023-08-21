@@ -3,6 +3,7 @@ import { onMounted } from "vue";
 import * as d3 from "d3";
 import d3tip from "d3-tip";
 import { ref, watch } from "vue";
+import screenfull from "screenfull";
 import { getDepGraph, getNodeDetail } from "@/api";
 import PkgDetail from "./components/PkgDetail.vue";
 import { ElMessage } from "element-plus";
@@ -44,7 +45,9 @@ interface ProjectDetail {
 const searchKeyWords = ref<string>("");
 const showName = ref(true);
 const showArrow = ref(true);
-const loading = ref(true)
+// 是否定位中心点
+const isCenter = ref(false);
+const loading = ref(true);
 
 const nodeDetail = ref<NodeDetail>({
   entryPackageName: "",
@@ -81,10 +84,8 @@ onMounted(async () => {
     data = { ...resp };
     // 获取项目详情
     projectDetail.value = { ...resp };
-    console.log(projectDetail.value);
-
     graph = render(data);
-    loading.value = false
+    loading.value = false;
   });
 });
 
@@ -181,10 +182,14 @@ function render(data: GraphData) {
     for (let i = 0; i < linksArray.length; i++) {
       // 恢复边的颜色
       linksArray[i].setAttribute("stroke", "gray");
-      linksArray[i].setAttribute("marker-end", "url(#triangle-gray)");
+      if(showArrow.value){
+        linksArray[i].setAttribute("marker-end", "url(#triangle-gray)");
+      }
       if (linksArray[i]["__data__"]["source"]["name"] === sourceName) {
         linksArray[i].setAttribute("stroke", "red");
-        linksArray[i].setAttribute("marker-end", "url(#triangle-red)");
+        if(showArrow.value){
+          linksArray[i].setAttribute("marker-end", "url(#triangle-red)");
+        }
       }
     }
   }
@@ -220,7 +225,7 @@ function render(data: GraphData) {
   // 缩放
   let zoom = d3
     .zoom()
-    .scaleExtent([0.5, 10]) // 鼠标缩放的距离, 范围
+    .scaleExtent([0.1, 10]) // 鼠标缩放的距离, 范围
     .on("zoom", (e: any) => {
       container.attr("transform", e.transform);
     });
@@ -286,6 +291,11 @@ function render(data: GraphData) {
     const name = "#" + packageName.replace(/[^a-zA-Z0-9]/g, "");
     const circle = svg.select(name);
     const r = circle.attr("r");
+    if(isCenter.value){
+      // 定位中心点
+      container.transition().duration(1000).attr('transform',`translate(${width/2-x}, ${height/2-y}) scale(1)`)
+    }
+    // 放大中心点
     circle
       .transition()
       .duration(500)
@@ -293,6 +303,7 @@ function render(data: GraphData) {
       .transition()
       .duration(500)
       .attr("r", r);
+    
   }
 
   return {
@@ -314,15 +325,13 @@ function search(packageName: string) {
     return;
   }
   graph.hightlightLinks(packageName);
-    // 节点坐标
-    const { x, y } = graph.getNodePositionByName(packageName);
-    graph.scaleAndCenterNode(packageName, x, y);
-    // 获取节点信息
-    getNodeDetail(packageName).then((resp: any) => {
-      nodeDetail.value = { ...resp };
-      console.log(nodeDetail.value);
-      
-    });
+  // 节点坐标
+  const { x, y } = graph.getNodePositionByName(packageName);
+  graph.scaleAndCenterNode(packageName, x, y);
+  // 获取节点信息
+  getNodeDetail(packageName).then((resp: any) => {
+    nodeDetail.value = { ...resp };
+  });
 }
 
 // 自动补全
@@ -359,6 +368,30 @@ watch(showArrow, (newValue, oldValue) => {
   );
   d3.selectAll("marker");
 });
+
+const toggleFullscreen = () => {
+  const ele: any = document.getElementById("mainsvg"); //指定全屏区域元素
+  if (screenfull.isEnabled) {
+    screenfull.request(ele);
+  }
+};
+
+// 修改图的渲染层数
+const changeDepth = (depth:number)=>{
+  d3.selectAll('g').remove()
+  loading.value = true
+  getDepGraph("default", depth).then((resp: any) => {
+    // 自动补全列表
+    dependenciesList.value = resp.nodes.map((node: Node) => {
+      return { value: node.name };
+    });
+    data = { ...resp };
+    // 获取项目详情
+    projectDetail.value = { ...resp };
+    graph = render(data);
+    loading.value = false;
+  });
+}
 </script>
 
 <template>
@@ -393,13 +426,20 @@ watch(showArrow, (newValue, oldValue) => {
               <div class="switch">
                 <span>展示箭头</span><el-switch v-model="showArrow" />
               </div>
+              <div class="switch">
+                <span>定位中心点(实验性)</span><el-switch v-model="isCenter" />
+              </div>
             </div>
           </el-col>
         </el-row>
         <div class="container" v-loading="loading">
-          <svg id="mainsvg" class="svg" width="1200" height="620">
+      <div class="svg-box">
+            <!-- 全屏按钮, 使用图标导致图像不显示, 暂不使用 -->
+            <!-- <el-button class="fullscreen-btn" @click="toggleFullscreen" :icon="FullScreen" circle /> -->
+            <el-button class="fullscreen-btn" @click="toggleFullscreen" title="全屏">全屏</el-button>
+            <svg id="mainsvg" class="svg" width="1200" height="620" viewBox="0 0 1200 620">
             <defs>
-              <marker 
+              <marker
                 id="triangle-gray"
                 viewBox="0 0 10 20"
                 refX="17"
@@ -425,8 +465,9 @@ watch(showArrow, (newValue, oldValue) => {
               </marker>
             </defs>
           </svg>
+          </div>
           <div class="detail-box">
-            <ProjectDetail :data="projectDetail" />
+            <ProjectDetail :data="projectDetail" @refresh="changeDepth"/>
             <PkgDetail
               v-if="nodeDetail.entryPackageName"
               :data="nodeDetail"
@@ -454,20 +495,28 @@ watch(showArrow, (newValue, oldValue) => {
   margin: 0 0.5em;
 }
 
-.el-main{
+.el-main {
   padding-top: 0;
 }
 .container {
   display: flex;
   gap: 1em;
 }
+.svg-box{
+  position: relative;
+}
 .svg {
-  float: left;
   position: relative;
   transform: translate(10, 10);
   border: 1px solid #eee;
+  background-color: white;
 }
-
+.fullscreen-btn{
+  position: absolute;
+  top: 1em;
+  right: 1em;
+  z-index: 2;
+}
 .detail-box {
   display: flex;
   flex-direction: column;

@@ -7,7 +7,16 @@
       {{ data.entryVersion }}
     </el-descriptions-item>
     <el-descriptions-item label="分析依赖层数">
-      {{ data.depth }}
+      <!-- {{ data.depth }} -->
+      <el-select
+        v-model="data.depth"
+        class="m-2"
+        placeholder="Select"
+        size="small"
+        @change="changeSelect"
+      >
+        <el-option v-for="i in 10" :key="i" :label="i" :value="i" />
+      </el-select>
     </el-descriptions-item>
     <el-descriptions-item label="分析节点数">
       {{ data.nodeCount }}
@@ -38,6 +47,10 @@ defineProps<{
 }>();
 
 const emit = defineEmits(["refresh"]);
+
+const changeSelect=(selectedDepth:number)=>{
+  emit('refresh', selectedDepth)
+}
 </script>
 
 <style scoped>

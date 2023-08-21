@@ -41,8 +41,6 @@ defineProps<{
 
 const emit = defineEmits(['refresh'])
 function handleClickLink(item:string){
-    console.log('emit');
-    
     emit('refresh', item)
 }
 </script>
