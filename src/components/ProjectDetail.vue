@@ -7,12 +7,12 @@
       {{ data.entryVersion }}
     </el-descriptions-item>
     <el-descriptions-item label="分析依赖层数">
-      <!-- {{ data.depth }} -->
       <el-select
         v-model="data.depth"
         class="m-2"
         placeholder="Select"
         size="small"
+        :disabled="isLocalFile"
         @change="changeSelect"
       >
         <el-option v-for="i in 10" :key="i" :label="i" :value="i" />
@@ -21,20 +21,86 @@
     <el-descriptions-item label="分析节点数">
       {{ data.nodeCount }}
     </el-descriptions-item>
-    <el-descriptions-item label="是否有循环依赖">
-      <el-tag :type="data.isCircle ? 'danger' : 'info'">{{
-        data.isCircle ? "是" : "否"
-      }}</el-tag>
-    </el-descriptions-item>
     <el-descriptions-item label="是否有多版本依赖">
       <el-tag :type="data.isMulPackage ? 'danger' : 'info'">{{
         data.isMulPackage ? "是" : "否"
       }}</el-tag>
+      <span class="desc-link" v-if="data.isCircle">
+        &nbsp;
+        <el-link
+          type="success"
+          @click="showMulPackage = !showMulPackage"
+          :underline="false"
+          >查看</el-link
+        >
+      </span>
+    </el-descriptions-item>
+    <el-descriptions-item label="是否有循环依赖">
+      <el-tag :type="data.isCircle ? 'danger' : 'info'">{{
+        data.isCircle ? "是" : "否"
+      }}</el-tag>
+      <span class="desc-link" v-if="data.isCircle">
+        &nbsp;
+        <el-link
+          type="success"
+          @click="showCirleDep = !showCirleDep"
+          :underline="false"
+          >查看</el-link
+        >
+        &nbsp;&nbsp;&nbsp;
+        <el-link
+          type="success"
+          @click="handleHightCirleLinks"
+          :underline="false"
+          >图像</el-link
+        >
+      </span>
     </el-descriptions-item>
   </el-descriptions>
+  <div v-show="showMulPackage && data.mulPackageList.length>0">
+    <el-descriptions title="项目多版本依赖详情" :column="1" border>
+      <el-descriptions-item v-for="packageArray in data.mulPackageList" :label="packageArray[0]!=undefined && packageArray[0].split('&')[0]">
+        <div class="links-box" >
+          <el-link
+            v-for="node in packageArray"
+            type="primary"
+            @click="handleClickLink(node)"
+            :underline="false"
+            :key="node"
+            >{{ node.split('&')[1] }}</el-link
+          >
+        </div>
+      </el-descriptions-item>
+    </el-descriptions>
+  </div>
+  <div v-show="showCirleDep">
+    <el-descriptions direction="vertical" :column="1" border>
+      <el-descriptions-item label="循环依赖详情">
+        <div v-for="circle in data.circleDepList">
+          <div class="links">
+            <span>[</span>
+            <el-link
+              v-for="(node, index) in circle"
+              type="primary"
+              :class="index > 0 ? 'arrow' : ''"
+              @click="handleClickLink(node.toString())"
+              :underline="false"
+              :key="node"
+              >{{ node }}</el-link
+            >
+            <span>]</span>
+          </div>
+        </div>
+      </el-descriptions-item>
+    </el-descriptions>
+  </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
+const showCirleDep = ref(false);
+const showMulPackage = ref(false);
+
 defineProps<{
   data: {
     entryPackageName: string;
@@ -43,19 +109,35 @@ defineProps<{
     isCircle: boolean;
     isMulPackage: boolean;
     nodeCount: number;
+    circleDepList: [string[]];
+    mulPackageList: [string[]];
   };
+  // 如果是分析本地文件, 禁用选择器
+  isLocalFile: boolean
 }>();
 
-const emit = defineEmits(["refresh"]);
+const emit = defineEmits(["refresh", "hilightCirleLinks", "searchNode"]);
 
-const changeSelect=(selectedDepth:number)=>{
-  emit('refresh', selectedDepth)
+const changeSelect = (selectedDepth: number) => {
+  emit("refresh", selectedDepth);
+};
+
+const handleHightCirleLinks = () => {
+  emit("hilightCirleLinks");
+};
+
+function handleClickLink(item: string) {
+  emit("searchNode", item);
 }
 </script>
 
 <style scoped>
 .links-box {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+.arrow::before {
+  content: "->";
+  color: black;
 }
 </style>

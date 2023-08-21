@@ -4,9 +4,10 @@ import * as d3 from "d3";
 import d3tip from "d3-tip";
 import { ref, watch } from "vue";
 import screenfull from "screenfull";
+import html2canvas from "html2canvas";
 import { getDepGraph, getNodeDetail } from "@/api";
 import PkgDetail from "./components/PkgDetail.vue";
-import { ElMessage } from "element-plus";
+import { ElMessage, type UploadFiles, type UploadUserFile } from "element-plus";
 import ProjectDetail from "./components/ProjectDetail.vue";
 
 interface Node {
@@ -41,6 +42,8 @@ interface ProjectDetail {
   isCircle: boolean;
   isMulPackage: boolean;
   nodeCount: number;
+  circleDepList: [string[]];
+  mulPackageList: [string[]];
 }
 const searchKeyWords = ref<string>("");
 const showName = ref(true);
@@ -48,6 +51,8 @@ const showArrow = ref(true);
 // 是否定位中心点
 const isCenter = ref(false);
 const loading = ref(true);
+
+const isLocalFile = ref(false);
 
 const nodeDetail = ref<NodeDetail>({
   entryPackageName: "",
@@ -64,6 +69,8 @@ const projectDetail = ref<ProjectDetail>({
   isCircle: false,
   isMulPackage: false,
   nodeCount: 0,
+  circleDepList: [[]],
+  mulPackageList: [[]],
 });
 const dependenciesList = ref<Array<{ value: unknown }>>([]);
 // 获取依赖图的数据
@@ -182,12 +189,33 @@ function render(data: GraphData) {
     for (let i = 0; i < linksArray.length; i++) {
       // 恢复边的颜色
       linksArray[i].setAttribute("stroke", "gray");
-      if(showArrow.value){
+      if (showArrow.value) {
         linksArray[i].setAttribute("marker-end", "url(#triangle-gray)");
       }
       if (linksArray[i]["__data__"]["source"]["name"] === sourceName) {
         linksArray[i].setAttribute("stroke", "red");
-        if(showArrow.value){
+        if (showArrow.value) {
+          linksArray[i].setAttribute("marker-end", "url(#triangle-red)");
+        }
+      }
+    }
+  }
+
+  // 渲染循环依赖的边, targetLinks:[['a','b'],['b','a],...]
+  function hightlightCircleLinks(targetLinks: Array<string[]>) {
+    const linksArray = link["_groups"][0];
+    for (let i = 0; i < linksArray.length; i++) {
+      // 恢复边的颜色
+      linksArray[i].setAttribute("stroke", "gray");
+      if (showArrow.value) {
+        linksArray[i].setAttribute("marker-end", "url(#triangle-gray)");
+      }
+      const sourceAndTarget =
+        linksArray[i]["__data__"]["source"]["name"] +
+        linksArray[i]["__data__"]["target"]["name"];
+      if (targetLinks.includes(sourceAndTarget)) {
+        linksArray[i].setAttribute("stroke", "red");
+        if (showArrow.value) {
           linksArray[i].setAttribute("marker-end", "url(#triangle-red)");
         }
       }
@@ -291,9 +319,15 @@ function render(data: GraphData) {
     const name = "#" + packageName.replace(/[^a-zA-Z0-9]/g, "");
     const circle = svg.select(name);
     const r = circle.attr("r");
-    if(isCenter.value){
+    if (isCenter.value) {
       // 定位中心点
-      container.transition().duration(1000).attr('transform',`translate(${width/2-x}, ${height/2-y}) scale(1)`)
+      container
+        .transition()
+        .duration(1000)
+        .attr(
+          "transform",
+          `translate(${width / 2 - x}, ${height / 2 - y}) scale(1)`
+        );
     }
     // 放大中心点
     circle
@@ -303,7 +337,6 @@ function render(data: GraphData) {
       .transition()
       .duration(500)
       .attr("r", r);
-    
   }
 
   return {
@@ -311,6 +344,7 @@ function render(data: GraphData) {
     hightlightLinks,
     getNodePositionByName,
     scaleAndCenterNode,
+    hightlightCircleLinks,
   };
 }
 
@@ -366,7 +400,6 @@ watch(showArrow, (newValue, oldValue) => {
     "marker-end",
     `${newValue === true ? "url(#triangle-gray)" : "none"}`
   );
-  d3.selectAll("marker");
 });
 
 const toggleFullscreen = () => {
@@ -377,9 +410,9 @@ const toggleFullscreen = () => {
 };
 
 // 修改图的渲染层数
-const changeDepth = (depth:number)=>{
-  d3.selectAll('g').remove()
-  loading.value = true
+const changeDepth = (depth: number) => {
+  d3.selectAll("g").remove();
+  loading.value = true;
   getDepGraph("default", depth).then((resp: any) => {
     // 自动补全列表
     dependenciesList.value = resp.nodes.map((node: Node) => {
@@ -391,7 +424,89 @@ const changeDepth = (depth:number)=>{
     graph = render(data);
     loading.value = false;
   });
-}
+};
+
+const handleViewCircleDep = () => {
+  // 将循环依赖节点circleDepList:[['a','b','c','a'], ['a','b','d','a']]处理成边['ab'],'bc'...](需去重)
+  const circleDepLinks: Array<string> = [];
+  const map = new Map();
+  projectDetail.value.circleDepList
+    .map((circleArr) => {
+      const results = [];
+      for (let i = 0; i < circleArr.length - 1; i++) {
+        const node1 = circleArr[i];
+        const node2 = circleArr[i + 1];
+        const key = "" + node1 + node2;
+        if (!map.has(key)) {
+          map.set(key, true);
+          circleDepLinks.push(key);
+        }
+      }
+    })
+    .flat(1);
+  graph.hightlightCircleLinks(circleDepLinks);
+};
+
+const uploadRef = ref();
+const renderFile = (uploadFile: any) => {
+  isLocalFile.value = true;
+  try {
+    const reader = new FileReader();
+    reader.onload = function () {
+      if (reader.result) {
+        d3.selectAll("g").remove();
+        loading.value = true;
+        const data = JSON.parse(reader.result.toString());
+
+        // 自动补全列表
+        dependenciesList.value = data.nodes.map((node: Node) => {
+          return { value: node.name };
+        });
+        // 获取项目详情
+        projectDetail.value = { ...data };
+        graph = render(data);
+        loading.value = false;
+      }
+    };
+    reader.readAsText(uploadFile.raw);
+  } catch (err) {
+    console.log(err);
+    ElMessage({
+      message: "文件错误",
+      type: "error",
+      offset: 50,
+    });
+  }
+};
+const handleUpdloadSuccess = (uploadFile: any, uploadFiles: UploadFiles) => {
+  renderFile(uploadFile);
+  uploadRef.value.clearFiles();
+};
+
+const handleExceed = (files: File[], uploadFiles: UploadUserFile[]) => {
+  ElMessage({
+    message: "文件数量不能多于1个",
+    type: "error",
+    offset: 50,
+  });
+  uploadRef.value.clearFiles();
+};
+
+// 下载图片
+const mainSvgRef = ref();
+const downloadSvg = () => {
+  html2canvas(mainSvgRef.value).then((canvas) => {
+    // 将画布转换为图像的URL
+    var imageURL = canvas.toDataURL("image/png");
+
+    // 创建一个下载链接并模拟点击操作
+    var link = document.createElement("a");
+    link.href = imageURL;
+
+    link.download = `${data.entryPackageName}Graph.png`;
+    link.click();
+  });
+};
 </script>
 
 <template>
@@ -421,55 +536,92 @@ const changeDepth = (depth:number)=>{
           <el-col :span="8">
             <div class="switch-box">
               <div class="switch">
-                <span>展示名字</span><el-switch v-model="showName" />
+                <span>展示名字</span
+                ><el-switch size="small" v-model="showName" />
               </div>
               <div class="switch">
-                <span>展示箭头</span><el-switch v-model="showArrow" />
+                <span>展示箭头</span
+                ><el-switch size="small" v-model="showArrow" />
               </div>
               <div class="switch">
-                <span>定位中心点(实验性)</span><el-switch v-model="isCenter" />
+                <span>定位中心点(实验性)</span
+                ><el-switch size="small" v-model="isCenter" />
+              </div>
+              <div class="upload-btn">
+                <el-upload
+                  ref="uploadRef"
+                  action="#"
+                  accept="application/json"
+                  :on-change="handleUpdloadSuccess"
+                  :show-file-list="false"
+                  :auto-upload="false"
+                  :on-exceed="handleExceed"
+                  :limit="1"
+                >
+                  <template #trigger>
+                    <el-button size="small" type="success">上传</el-button>
+                  </template>
+                </el-upload>
               </div>
             </div>
           </el-col>
         </el-row>
         <div class="container" v-loading="loading">
-      <div class="svg-box">
-            <!-- 全屏按钮, 使用图标导致图像不显示, 暂不使用 -->
-            <!-- <el-button class="fullscreen-btn" @click="toggleFullscreen" :icon="FullScreen" circle /> -->
-            <el-button class="fullscreen-btn" @click="toggleFullscreen" title="全屏">全屏</el-button>
-            <svg id="mainsvg" class="svg" width="1200" height="620" viewBox="0 0 1200 620">
-            <defs>
-              <marker
-                id="triangle-gray"
-                viewBox="0 0 10 20"
-                refX="17"
-                refY="5"
-                markerUnits="strokeWidth"
-                markerWidth="10"
-                markerHeight="20"
-                orient="auto-start-reverse"
+          <div class="svg-box">
+            <div class="svg-tools-box">
+              <!-- 全屏按钮, 使用图标导致图像不显示, 暂不使用 -->
+              <!-- <el-button class="fullscreen-btn" @click="toggleFullscreen" :icon="FullScreen" circle /> -->
+              <el-button @click="toggleFullscreen" title="全屏">全屏</el-button>
+              <el-button @click="downloadSvg" title="下载">下载</el-button>
+            </div>
+            <div ref="mainSvgRef">
+              <svg
+                id="mainsvg"
+                class="svg"
+                width="1200"
+                height="620"
+                viewBox="0 0 1200 620"
               >
-                <path d="M 0 0 L 10 5 L 0 10 z" fill="gray" />
-              </marker>
-              <marker
-                id="triangle-red"
-                viewBox="0 0 10 20"
-                refX="17"
-                refY="5"
-                markerUnits="strokeWidth"
-                markerWidth="10"
-                markerHeight="20"
-                orient="auto-start-reverse"
-              >
-                <path d="M 0 0 L 10 5 L 0 10 z" fill="red" />
-              </marker>
-            </defs>
-          </svg>
+                <defs>
+                  <marker
+                    id="triangle-gray"
+                    viewBox="0 0 10 20"
+                    refX="17"
+                    refY="5"
+                    markerUnits="strokeWidth"
+                    markerWidth="10"
+                    markerHeight="20"
+                    orient="auto-start-reverse"
+                  >
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="gray" />
+                  </marker>
+                  <marker
+                    id="triangle-red"
+                    viewBox="0 0 10 20"
+                    refX="17"
+                    refY="5"
+                    markerUnits="strokeWidth"
+                    markerWidth="10"
+                    markerHeight="20"
+                    orient="auto-start-reverse"
+                  >
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="red" />
+                  </marker>
+                </defs>
+              </svg>
+            </div>
           </div>
           <div class="detail-box">
-            <ProjectDetail :data="projectDetail" @refresh="changeDepth"/>
+            <ProjectDetail
+              :data="projectDetail"
+              :isLocalFile="isLocalFile"
+              @refresh="changeDepth"
+              @hilight-cirle-links="handleViewCircleDep"
+              @search-node="search"
+            />
+            <!-- 本地文件缺乏具体节点数据, 所以不展示 -->
             <PkgDetail
-              v-if="nodeDetail.entryPackageName"
+              v-show="nodeDetail.entryPackageName && !isLocalFile"
               :data="nodeDetail"
               @refresh="search"
             />
@@ -494,7 +646,9 @@ const changeDepth = (depth:number)=>{
   display: inline-block;
   margin: 0 0.5em;
 }
-
+.upload-btn {
+  margin: 0 0 0 5px;
+}
 .el-main {
   padding-top: 0;
 }
@@ -502,7 +656,7 @@ const changeDepth = (depth:number)=>{
   display: flex;
   gap: 1em;
 }
-.svg-box{
+.svg-box {
   position: relative;
 }
 .svg {
@@ -511,11 +665,13 @@ const changeDepth = (depth:number)=>{
   border: 1px solid #eee;
   background-color: white;
 }
-.fullscreen-btn{
+.svg-tools-box {
   position: absolute;
   top: 1em;
   right: 1em;
   z-index: 2;
+  display: flex;
+  gap: 0.1em;
 }
 .detail-box {
   display: flex;
