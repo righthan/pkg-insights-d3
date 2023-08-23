@@ -100,8 +100,8 @@ onMounted(async () => {
 function render(data: GraphData) {
   const svg = d3.select("svg");
   const container = svg.append("g");
-  const width = svg.attr("width");
-  const height = svg.attr("height");
+  const width = parseInt(window.getComputedStyle(mainSvgRef.value).width)
+  const height = parseInt(window.getComputedStyle(mainSvgRef.value).height)
   container.attr("viewBox", `0 0 ${width} ${height}`);
   // const nodes = Array.from(
   //   data.nodes.map((name: string) => {
@@ -113,8 +113,7 @@ function render(data: GraphData) {
 
   const color = d3
     .scaleSequential(d3.interpolateRainbow)
-    .domain([0, nodes.length - 1]);
-
+    .domain([0, 100]);
   const simulation = d3.forceSimulation(nodes);
 
   simulation
@@ -411,9 +410,11 @@ const toggleFullscreen = () => {
 
 // 修改图的渲染层数
 const changeDepth = (depth: number) => {
-  d3.selectAll("g").remove();
-  loading.value = true;
-  getDepGraph("default", depth).then((resp: any) => {
+  // 重置组件的内容
+  reLoad()
+
+  const pkg = data.entryPackageName+'&'+data.entryVersion
+  getDepGraph(pkg, depth).then((resp: any) => {
     // 自动补全列表
     dependenciesList.value = resp.nodes.map((node: Node) => {
       return { value: node.name };
@@ -454,8 +455,8 @@ const renderFile = (uploadFile: any) => {
     const reader = new FileReader();
     reader.onload = function () {
       if (reader.result) {
-        d3.selectAll("g").remove();
-        loading.value = true;
+        // 重置组件内容
+        reLoad()
         const data = JSON.parse(reader.result.toString());
 
         // 自动补全列表
@@ -507,6 +508,14 @@ const downloadSvg = () => {
     link.click();
   });
 };
+
+// 重新加载时删除原数据, 取消依赖详情组件可见性
+const reLoad = ()=>{
+  d3.selectAll("g").remove();
+  loading.value = true;
+  // entryPackageName置空使组件不可见
+  nodeDetail.value.entryPackageName = ''
+}
 </script>
 
 <template>
@@ -578,9 +587,8 @@ const downloadSvg = () => {
               <svg
                 id="mainsvg"
                 class="svg"
-                width="1200"
-                height="620"
-                viewBox="0 0 1200 620"
+                width="75vw"
+                height="78vh"
               >
                 <defs>
                   <marker
@@ -611,21 +619,24 @@ const downloadSvg = () => {
               </svg>
             </div>
           </div>
-          <div class="detail-box">
-            <ProjectDetail
-              :data="projectDetail"
-              :isLocalFile="isLocalFile"
-              @refresh="changeDepth"
-              @hilight-cirle-links="handleViewCircleDep"
-              @search-node="search"
-            />
-            <!-- 本地文件缺乏具体节点数据, 所以不展示 -->
-            <PkgDetail
-              v-show="nodeDetail.entryPackageName && !isLocalFile"
-              :data="nodeDetail"
-              @refresh="search"
-            />
-          </div>
+          <el-aside width="20vw">
+            <div class="detail-box">
+              <ProjectDetail
+                :data="projectDetail"
+                :isLocalFile="isLocalFile"
+                @refresh="changeDepth"
+                @hilight-cirle-links="handleViewCircleDep"
+                @search-node="search"
+              />
+              <!-- 本地文件缺乏具体节点数据, 所以不展示 -->
+              <div v-show="nodeDetail.entryPackageName && !isLocalFile">
+                <PkgDetail
+                :data="nodeDetail"
+                @refresh="search"
+              />
+              </div>
+            </div>
+          </el-aside>
         </div>
       </el-main>
     </el-container>
@@ -664,6 +675,8 @@ const downloadSvg = () => {
   transform: translate(10, 10);
   border: 1px solid #eee;
   background-color: white;
+  min-width: 1200px;
+  min-height: 600px;
 }
 .svg-tools-box {
   position: absolute;

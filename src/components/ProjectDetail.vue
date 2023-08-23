@@ -15,7 +15,8 @@
         :disabled="isLocalFile"
         @change="changeSelect"
       >
-        <el-option v-for="i in 10" :key="i" :label="i" :value="i" />
+        <el-option key="all" label="all" value="-1" />
+        <el-option v-for="i in 20" :key="i" :label="i" :value="i" />
       </el-select>
     </el-descriptions-item>
     <el-descriptions-item label="分析节点数">
@@ -25,7 +26,7 @@
       <el-tag :type="data.isMulPackage ? 'danger' : 'info'">{{
         data.isMulPackage ? "是" : "否"
       }}</el-tag>
-      <span class="desc-link" v-if="data.isCircle">
+      <span v-if="data.isMulPackage">
         &nbsp;
         <el-link
           type="success"
@@ -57,40 +58,48 @@
       </span>
     </el-descriptions-item>
   </el-descriptions>
-  <div v-show="showMulPackage && data.mulPackageList.length>0">
-    <el-descriptions title="项目多版本依赖详情" :column="1" border>
-      <el-descriptions-item v-for="packageArray in data.mulPackageList" :label="packageArray[0]!=undefined && packageArray[0].split('&')[0]">
-        <div class="links-box" >
-          <el-link
-            v-for="node in packageArray"
-            type="primary"
-            @click="handleClickLink(node)"
-            :underline="false"
-            :key="node"
-            >{{ node.split('&')[1] }}</el-link
-          >
-        </div>
-      </el-descriptions-item>
-    </el-descriptions>
-  </div>
-  <div v-show="showCirleDep">
-    <el-descriptions direction="vertical" :column="1" border>
-      <el-descriptions-item label="循环依赖详情">
-        <div v-for="circle in data.circleDepList">
-          <div class="links">
-            <span>[</span>
+  <div v-show="showMulPackage && data.mulPackageList.length > 0">
+    <h4 class="desc-title">项目多版本依赖详情</h4>
+    <el-scrollbar max-height="150px">
+      <el-descriptions :column="1" border>
+        <el-descriptions-item
+          v-for="packageArray in data.mulPackageList"
+          :label="packageArray[0] != undefined && packageArray[0].split('&')[0]"
+        >
+          <div class="links-box">
             <el-link
-              v-for="(node, index) in circle"
+              v-for="node in packageArray"
               type="primary"
-              :class="index > 0 ? 'arrow' : ''"
-              @click="handleClickLink(node.toString())"
+              @click="handleClickLink(node)"
               :underline="false"
               :key="node"
-              >{{ node }}</el-link
+              >{{ node.split("&")[1] }}</el-link
             >
-            <span>]</span>
           </div>
-        </div>
+        </el-descriptions-item>
+      </el-descriptions>
+    </el-scrollbar>
+  </div>
+  <div v-show="showCirleDep && data.isMulPackage">
+    <el-descriptions direction="vertical" :column="1" border>
+      <el-descriptions-item label="循环依赖详情">
+        <el-scrollbar max-height="150px">
+          <div v-for="circle in data.circleDepList">
+            <div class="links">
+              <span>[</span>
+              <el-link
+                v-for="(node, index) in circle"
+                type="primary"
+                :class="index > 0 ? 'arrow' : ''"
+                @click="handleClickLink(node.toString())"
+                :underline="false"
+                :key="node"
+                >{{ node }}</el-link
+              >
+              <span>]</span>
+            </div>
+          </div>
+        </el-scrollbar>
       </el-descriptions-item>
     </el-descriptions>
   </div>
@@ -113,7 +122,7 @@ defineProps<{
     mulPackageList: [string[]];
   };
   // 如果是分析本地文件, 禁用选择器
-  isLocalFile: boolean
+  isLocalFile: boolean;
 }>();
 
 const emit = defineEmits(["refresh", "hilightCirleLinks", "searchNode"]);
@@ -132,6 +141,9 @@ function handleClickLink(item: string) {
 </script>
 
 <style scoped>
+.desc-title{
+  margin: .5em 0;
+}
 .links-box {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
