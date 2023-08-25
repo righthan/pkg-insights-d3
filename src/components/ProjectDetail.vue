@@ -118,8 +118,8 @@ defineProps<{
     isCircle: boolean;
     isMulPackage: boolean;
     nodeCount: number;
-    circleDepList: [string[]];
-    mulPackageList: [string[]];
+    circleDepList: Array<string[]>;
+    mulPackageList: Array<string[]>;
   };
   // 如果是分析本地文件, 禁用选择器
   isLocalFile: boolean;

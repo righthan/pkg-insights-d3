@@ -10,8 +10,7 @@ export const getDepGraph = (name:string, depth:number)=>{
 
 export const getNodeDetail= (name:string)=>{
     return request({
-        // 第二个参数depth没影响, 默认10
-        url: `/depgraph-simple/${name}/10`,
+        url: `/depgraph-simple/${encodeURIComponent(name)}`,
         method: 'get'
     })
 }
