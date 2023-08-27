@@ -173,10 +173,12 @@ function render(data: GraphData) {
       .transition()
       .duration(100)
       .attr("r", r);
-    // 获取节点信息
-    getNodeDetail(sourceName).then((resp: any) => {
-      nodeDetail.value = { ...resp };
-    });
+    // 不是本地json文件则从接口获取节点信息
+    if (!isLocalFile) {
+      getNodeDetail(sourceName).then((resp: any) => {
+        nodeDetail.value = { ...resp };
+      });
+    }
     hightlightLinks(sourceName);
   };
 
@@ -247,13 +249,25 @@ function render(data: GraphData) {
     .clone(true)
     .lower()
     .attr("fill", "none");
+
+  // 定时缩放根项目节点
+  const rootName = data.entryPackageName + "&" + data.entryVersion;
+  const rootPoint = d3.select("#" + rootName.replace(/[^a-zA-Z0-9]/g, ""));
+  rootPoint.attr("fill", "red");
+  setInterval(() => {
+    rootPoint
+      .transition()
+      .duration(500)
+      .attr("r", 20)
+      .transition()
+      .duration(500)
+      .attr("r", 10);
+  }, 1500);
   // 缩放
   let zoom = d3
     .zoom()
     .scaleExtent([0.1, 10]) // 鼠标缩放的距离, 范围
     .on("zoom", (e: any) => {
-      // console.log('zoom event', zoom.event());
-
       container.attr("transform", e.transform);
     });
   svg.call(zoom).call(zoom.transform, d3.zoomIdentity.scale(1));
@@ -318,8 +332,10 @@ function render(data: GraphData) {
   let previousTaget: any = null;
   let previousRadius: number = 0;
   function scaleAndCenterNode(packageName: string, x: number, y: number) {
+    // 判断是否是根项目节点, 是则只定位到中心点, 不执行放缩, 不然会和根项目节点定时放缩产生问题
+    const isRootPoint = packageName === rootName;
     // 在动画开始之前, 直接重置上一个对象的状态, 防止多次点击造成大小异常
-    if (previousTaget !== null) {
+    if (previousTaget !== null && !isRootPoint) {
       previousTaget.interrupt();
       previousTaget.attr("r", previousRadius);
     }
@@ -344,7 +360,8 @@ function render(data: GraphData) {
       svg.node().__zoom.x = width / 2 - x;
       svg.node().__zoom.y = height / 2 - y;
     }
-    // 放大中心点
+    // 放大中心点(如果是根项目, 则不放大, 否则会和根项目节点定时放缩产生问题)
+    if (isRootPoint) return;
     circle
       .transition()
       .duration(500)
@@ -377,10 +394,12 @@ function search(packageName: string) {
   // 节点坐标
   const { x, y } = graph.getNodePositionByName(packageName);
   graph.scaleAndCenterNode(packageName, x, y);
-  // 获取节点信息
-  getNodeDetail(packageName).then((resp: any) => {
-    nodeDetail.value = { ...resp };
-  });
+  // 不是本地json文件就请求获取节点信息
+  if (!isLocalFile) {
+    getNodeDetail(packageName).then((resp: any) => {
+      nodeDetail.value = { ...resp };
+    });
+  }
 }
 
 // 自动补全
@@ -529,6 +548,11 @@ const downloadSvg = () => {
 const reLoad = () => {
   d3.selectAll("g").remove();
   loading.value = true;
+  // 重置svg的 __zoom防止重新导入数据时仍然在上一次的缩放数据中
+  const svg = d3.select("svg");
+  svg.node().__zoom.k = 1;
+  svg.node().__zoom.x = 0;
+  svg.node().__zoom.y = 0;
   // entryPackageName置空使组件不可见
   nodeDetail.value.entryPackageName = "";
 };
@@ -537,7 +561,7 @@ const reLoad = () => {
 <template>
   <el-container>
     <el-header>
-      <h2>Pkg Insights</h2>
+      <h1>Dep-Analyze-Cli Insights</h1>
     </el-header>
     <el-container>
       <el-main>
@@ -639,8 +663,14 @@ const reLoad = () => {
                 @hilight-cirle-links="handleViewCircleDep"
                 @search-node="search"
               />
-              <!-- 本地文件缺乏具体节点数据, 所以不展示 -->
-              <div v-show="nodeDetail.entryPackageName && !isLocalFile">
+              <!-- 本地文件缺乏具体节点数据, 所以不展示, 根项目节点也不展示 -->
+              <div
+                v-show="
+                  nodeDetail.entryPackageName &&
+                  !isLocalFile &&
+                  nodeDetail.entryPackageName !== data.entryPackageName
+                "
+              >
                 <PkgDetail :data="nodeDetail" @refresh="search" />
               </div>
             </div>

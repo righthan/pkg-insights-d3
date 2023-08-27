@@ -1,7 +1,10 @@
 <template>
   <el-descriptions title="根项目详情" :column="1" border>
     <el-descriptions-item label="项目名称" min-width="150">
-      {{ data.entryPackageName }}
+      <!-- {{ data.entryPackageName }} -->
+      <el-link type="primary" @click="handleClickLink(getRootProjectFullname())" :underline="false">{{
+        data.entryPackageName
+      }}</el-link>
     </el-descriptions-item>
     <el-descriptions-item label="版本">
       {{ data.entryVersion }}
@@ -106,11 +109,12 @@
 </template>
 
 <script setup lang="ts">
+import { dataType } from "element-plus/es/components/table-v2/src/common";
 import { ref } from "vue";
 const showCirleDep = ref(false);
 const showMulPackage = ref(false);
 
-defineProps<{
+const props = defineProps<{
   data: {
     entryPackageName: string;
     entryVersion: string;
@@ -138,11 +142,16 @@ const handleHightCirleLinks = () => {
 function handleClickLink(item: string) {
   emit("searchNode", item);
 }
+
+// 单独处理获取根项目的全名(包名+版本号)(因为不能在编译时计算参数...)
+const getRootProjectFullname = ()=>{
+  return props.data.entryPackageName +'&' + props.data.entryVersion
+}
 </script>
 
 <style scoped>
-.desc-title{
-  margin: .5em 0;
+.desc-title {
+  margin: 0.5em 0;
 }
 .links-box {
   display: grid;
