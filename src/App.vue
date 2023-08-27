@@ -49,7 +49,7 @@ const searchKeyWords = ref<string>("");
 const showName = ref(true);
 const showArrow = ref(true);
 // 是否定位中心点
-const isCenter = ref(false);
+const isCenter = ref(true);
 const loading = ref(true);
 
 const isLocalFile = ref(false);
@@ -100,8 +100,8 @@ onMounted(async () => {
 function render(data: GraphData) {
   const svg = d3.select("svg");
   const container = svg.append("g");
-  const width = parseInt(window.getComputedStyle(mainSvgRef.value).width)
-  const height = parseInt(window.getComputedStyle(mainSvgRef.value).height)
+  const width = parseInt(window.getComputedStyle(mainSvgRef.value).width);
+  const height = parseInt(window.getComputedStyle(mainSvgRef.value).height);
   container.attr("viewBox", `0 0 ${width} ${height}`);
   // const nodes = Array.from(
   //   data.nodes.map((name: string) => {
@@ -111,9 +111,7 @@ function render(data: GraphData) {
   const nodes = data.nodes;
   const links = data.links;
 
-  const color = d3
-    .scaleSequential(d3.interpolateRainbow)
-    .domain([0, 100]);
+  const color = d3.scaleSequential(d3.interpolateRainbow).domain([0, 100]);
   const simulation = d3.forceSimulation(nodes);
 
   simulation
@@ -254,6 +252,8 @@ function render(data: GraphData) {
     .zoom()
     .scaleExtent([0.1, 10]) // 鼠标缩放的距离, 范围
     .on("zoom", (e: any) => {
+      // console.log('zoom event', zoom.event());
+
       container.attr("transform", e.transform);
     });
   svg.call(zoom).call(zoom.transform, d3.zoomIdentity.scale(1));
@@ -313,11 +313,22 @@ function render(data: GraphData) {
       return { x, y };
     }
   }
+
+  // 保存之前的对象和半径
+  let previousTaget: any = null;
+  let previousRadius: number = 0;
   function scaleAndCenterNode(packageName: string, x: number, y: number) {
+    // 在动画开始之前, 直接重置上一个对象的状态, 防止多次点击造成大小异常
+    if (previousTaget !== null) {
+      previousTaget.interrupt();
+      previousTaget.attr("r", previousRadius);
+    }
     // 因为选择器中不能出现 & . 需要处理
     const name = "#" + packageName.replace(/[^a-zA-Z0-9]/g, "");
     const circle = svg.select(name);
     const r = circle.attr("r");
+    previousTaget = circle;
+    previousRadius = r;
     if (isCenter.value) {
       // 定位中心点
       container
@@ -327,6 +338,11 @@ function render(data: GraphData) {
           "transform",
           `translate(${width / 2 - x}, ${height / 2 - y}) scale(1)`
         );
+
+      // 将新的tramsfrom变换存储到__zoom, 解决定位后zoom事件仍使用旧的变换, 导致跳跃,突变等异常现象
+      svg.node().__zoom.k = 1;
+      svg.node().__zoom.x = width / 2 - x;
+      svg.node().__zoom.y = height / 2 - y;
     }
     // 放大中心点
     circle
@@ -411,9 +427,9 @@ const toggleFullscreen = () => {
 // 修改图的渲染层数
 const changeDepth = (depth: number) => {
   // 重置组件的内容
-  reLoad()
+  reLoad();
 
-  const pkg = data.entryPackageName+'&'+data.entryVersion
+  const pkg = data.entryPackageName + "&" + data.entryVersion;
   getDepGraph(pkg, depth).then((resp: any) => {
     // 自动补全列表
     dependenciesList.value = resp.nodes.map((node: Node) => {
@@ -456,7 +472,7 @@ const renderFile = (uploadFile: any) => {
     reader.onload = function () {
       if (reader.result) {
         // 重置组件内容
-        reLoad()
+        reLoad();
         const data = JSON.parse(reader.result.toString());
 
         // 自动补全列表
@@ -510,12 +526,12 @@ const downloadSvg = () => {
 };
 
 // 重新加载时删除原数据, 取消依赖详情组件可见性
-const reLoad = ()=>{
+const reLoad = () => {
   d3.selectAll("g").remove();
   loading.value = true;
   // entryPackageName置空使组件不可见
-  nodeDetail.value.entryPackageName = ''
-}
+  nodeDetail.value.entryPackageName = "";
+};
 </script>
 
 <template>
@@ -553,7 +569,7 @@ const reLoad = ()=>{
                 ><el-switch size="small" v-model="showArrow" />
               </div>
               <div class="switch">
-                <span>定位中心点(实验性)</span
+                <span>定位到中心点</span
                 ><el-switch size="small" v-model="isCenter" />
               </div>
               <div class="upload-btn">
@@ -568,7 +584,7 @@ const reLoad = ()=>{
                   :limit="1"
                 >
                   <template #trigger>
-                    <el-button size="small" type="success">上传</el-button>
+                    <el-button size="small" type="success">上传JSON</el-button>
                   </template>
                 </el-upload>
               </div>
@@ -584,12 +600,7 @@ const reLoad = ()=>{
               <el-button @click="downloadSvg" title="下载">下载</el-button>
             </div>
             <div ref="mainSvgRef">
-              <svg
-                id="mainsvg"
-                class="svg"
-                width="75vw"
-                height="78vh"
-              >
+              <svg id="mainsvg" class="svg" width="75vw" height="78vh">
                 <defs>
                   <marker
                     id="triangle-gray"
@@ -630,10 +641,7 @@ const reLoad = ()=>{
               />
               <!-- 本地文件缺乏具体节点数据, 所以不展示 -->
               <div v-show="nodeDetail.entryPackageName && !isLocalFile">
-                <PkgDetail
-                :data="nodeDetail"
-                @refresh="search"
-              />
+                <PkgDetail :data="nodeDetail" @refresh="search" />
               </div>
             </div>
           </el-aside>

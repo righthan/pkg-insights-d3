@@ -652,7 +652,7 @@ export const server = setupServer(
             ]
         }))
     }),
-    rest.get(`http://127.0.0.1:50000/depgraph-simple/express&4.18.2/10`,(req, res, ctx) => {
+    rest.get(`http://127.0.0.1:50000/depgraph-simple/express%264.18.2`,(req, res, ctx) => {
         return res(ctx.json({
             "entryPackageName": "express",
             "entryVersion": "4.18.2",

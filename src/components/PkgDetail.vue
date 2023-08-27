@@ -58,7 +58,7 @@ defineProps<{
     entryVersion: string;
     isCircle: boolean;
     isMulPackage: boolean;
-    mulPackageList: Array<string>;
+    mulPackageList: Array<string[]>;
   };
 }>();
 
