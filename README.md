@@ -4,19 +4,6 @@
 
 ![screenshot](docs/images/screenshot.png)
 
-## 项目运行方式
-
-```sh
-// Project Setup
-npm install
-// Compile and Hot-Reload for Development
-npm run dev
-// Type-Check, Compile and Minify for Production
-npm run build
-```
-
-之后将build之后的文件放到[dep-analyze-cli](https://github.com/15871687941/dep-analyze-cli-sourcecode)的vue文件夹下，完成部署
-
 ## 项目特色
 
 * 支持查看多版本依赖，点击版本号即可在图像中定位该版本的依赖
@@ -30,6 +17,19 @@ npm run build
 * 支持在页面修改项目分析层数
 * 支持自定义是否展示节点名称，指向箭头
 * 支持上传并渲染使用[dep-analyze-cli](https://github.com/15871687941/dep-analyze-cli-sourcecode)导出的本地json分析文件
+    
+## 项目运行方式
+
+```sh
+// Project Setup
+npm install
+// Compile and Hot-Reload for Development
+npm run dev
+// Type-Check, Compile and Minify for Production
+npm run build
+```
+
+之后将build之后的文件放到[dep-analyze-cli](https://github.com/15871687941/dep-analyze-cli-sourcecode)的vue文件夹下，完成部署
 
 ## 项目难点
 
