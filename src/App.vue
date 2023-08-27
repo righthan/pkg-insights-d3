@@ -9,6 +9,7 @@ import { getDepGraph, getNodeDetail } from "@/api";
 import PkgDetail from "./components/PkgDetail.vue";
 import { ElMessage, type UploadFiles, type UploadUserFile } from "element-plus";
 import ProjectDetail from "./components/ProjectDetail.vue";
+import { svg } from "d3";
 
 interface Node {
   name: string;
@@ -162,7 +163,7 @@ function render(data: GraphData) {
     const sourceName = d3.select(event.currentTarget)["_groups"][0][0][
       "__data__"
     ].name;
-    // 因为选择器中不能出现 & . 需要处理
+    // 因为选择器中不能出现 & . 需要处理, 添加 #, 因为在d3.select中使用id选择器
     const _name = "#" + sourceName.replace(/[^a-zA-Z0-9]/g, "");
     const circle = d3.select(_name);
     const r = circle.attr("r");
@@ -247,6 +248,20 @@ function render(data: GraphData) {
     .clone(true)
     .lower()
     .attr("fill", "none");
+  
+
+  // 定时缩放根项目节点
+  const rootPoint = d3.select('#'+data.entryPackageName+data.entryVersion.replace(/[^a-zA-Z0-9]/g, ""))  
+  rootPoint.attr('fill', 'red')
+  setInterval(()=>{
+    rootPoint
+      .transition()
+      .duration(500)
+      .attr("r", 20)
+      .transition()
+      .duration(500)
+      .attr("r", 10);
+  },1500)  
   // 缩放
   let zoom = d3
     .zoom()
@@ -318,8 +333,11 @@ function render(data: GraphData) {
   let previousTaget: any = null;
   let previousRadius: number = 0;
   function scaleAndCenterNode(packageName: string, x: number, y: number) {
+    // 判断是否是根项目节点, 如果是则只执行定位到中心点, 不再缩放(防止和根节点上的定时器缩放大小冲突)
+    const isRootPoint = packageName.indexOf(data.entryPackageName) !== -1
+
     // 在动画开始之前, 直接重置上一个对象的状态, 防止多次点击造成大小异常
-    if (previousTaget !== null) {
+    if (previousTaget !== null && !isRootPoint) {
       previousTaget.interrupt();
       previousTaget.attr("r", previousRadius);
     }
@@ -344,7 +362,8 @@ function render(data: GraphData) {
       svg.node().__zoom.x = width / 2 - x;
       svg.node().__zoom.y = height / 2 - y;
     }
-    // 放大中心点
+    // 放大中心点(若是根项目, 则不缩放)
+    if(isRootPoint) return
     circle
       .transition()
       .duration(500)
@@ -529,6 +548,13 @@ const downloadSvg = () => {
 const reLoad = () => {
   d3.selectAll("g").remove();
   loading.value = true;
+
+  // 重置svg的变换, 解决本地导入时仍是上次的位置的问题
+  const svg = d3.select("svg");
+  svg.node().__zoom.k = 1;
+  svg.node().__zoom.x = 0;
+  svg.node().__zoom.y = 0;
+  
   // entryPackageName置空使组件不可见
   nodeDetail.value.entryPackageName = "";
 };
@@ -537,7 +563,7 @@ const reLoad = () => {
 <template>
   <el-container>
     <el-header>
-      <h2>Pkg Insights</h2>
+      <h1>Dep-Analyze-Cli Insights</h1>
     </el-header>
     <el-container>
       <el-main>
@@ -639,8 +665,8 @@ const reLoad = () => {
                 @hilight-cirle-links="handleViewCircleDep"
                 @search-node="search"
               />
-              <!-- 本地文件缺乏具体节点数据, 所以不展示 -->
-              <div v-show="nodeDetail.entryPackageName && !isLocalFile">
+              <!-- 本地文件缺乏具体节点数据, 所以不展示, 点击根节点也不展示 -->
+              <div v-show="nodeDetail.entryPackageName && !isLocalFile && nodeDetail.entryPackageName !== data.entryPackageName">
                 <PkgDetail :data="nodeDetail" @refresh="search" />
               </div>
             </div>

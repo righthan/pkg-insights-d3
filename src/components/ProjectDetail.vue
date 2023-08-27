@@ -1,7 +1,13 @@
 <template>
   <el-descriptions title="根项目详情" :column="1" border>
     <el-descriptions-item label="项目名称" min-width="150">
-      {{ data.entryPackageName }}
+      <!-- {{ data.entryPackageName }} -->
+      <el-link
+              type="primary"
+              @click="handleClickLink(data.entryPackageName+'&'+data.entryVersion)"
+              :underline="false"
+              >{{ data.entryPackageName }}</el-link
+            >
     </el-descriptions-item>
     <el-descriptions-item label="版本">
       {{ data.entryVersion }}
