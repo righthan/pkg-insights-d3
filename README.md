@@ -51,3 +51,6 @@ npm run build
 
    为了使操作过程中图像有更好的交互效果，需要对依赖图中的节点图像进行改变填充颜色和图像半径大小，对边进行颜色高亮的操作，因此需要频繁查找和操作svg图像中的节点，为了提升效率，需要结合d3的`select()`方法，给每一个节点都添加id属性，以唯一标识每个节点，因为需要更方便地通过节点名称和版本号查询节点，使用了这两个属性来设置id。 例如 `@types/axios&1.2.3`，需使用正则表达式，去除特殊字符，最终使用`typesaxios123`作为id。
 
+<iframe style="height:500px" src="//player.bilibili.com/player.html?aid=59317437&bvid=BV1Pt411G7qh&cid=103365806&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
+
+<iframe src="//player.bilibili.com/player.html?aid=575193171&bvid=BV1kz4y1T7hY&cid=1245383999&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>

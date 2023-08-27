@@ -109,7 +109,6 @@
 </template>
 
 <script setup lang="ts">
-import { dataType } from "element-plus/es/components/table-v2/src/common";
 import { ref } from "vue";
 const showCirleDep = ref(false);
 const showMulPackage = ref(false);

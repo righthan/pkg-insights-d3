@@ -175,7 +175,7 @@ function render(data: GraphData) {
       .duration(100)
       .attr("r", r);
     // 不是本地json文件则从接口获取节点信息
-    if (!isLocalFile) {
+    if (!isLocalFile.value) {
       getNodeDetail(sourceName).then((resp: any) => {
         nodeDetail.value = { ...resp };
       });
@@ -225,7 +225,7 @@ function render(data: GraphData) {
     .append("circle")
     .attr("stroke", "white")
     .attr("stroke-width", 1.5)
-    .attr("r", (d: any) => 6 + (d.count % 10))
+    .attr("r", (d: any) => 5.5 + (d.count % 7))
     .attr("fill", (d: any) => color(Math.random() * 100))
     // 防止id中出现特殊字符导致无法使用选择器
     .attr("id", (d: any) => d.name.replace(/[^a-zA-Z0-9]/g, ""))
@@ -396,7 +396,7 @@ function search(packageName: string) {
   const { x, y } = graph.getNodePositionByName(packageName);
   graph.scaleAndCenterNode(packageName, x, y);
   // 不是本地json文件就请求获取节点信息
-  if (!isLocalFile) {
+  if (!isLocalFile.value) {
     getNodeDetail(packageName).then((resp: any) => {
       nodeDetail.value = { ...resp };
     });
@@ -556,6 +556,8 @@ const reLoad = () => {
   svg.node().__zoom.y = 0;
   // entryPackageName置空使组件不可见
   nodeDetail.value.entryPackageName = "";
+  // 清空搜索框内容
+  searchKeyWords.value = ''
 };
 </script>
 
