@@ -9,6 +9,7 @@ import { getDepGraph, getNodeDetail } from "@/api";
 import PkgDetail from "./components/PkgDetail.vue";
 import { ElMessage, type UploadFiles, type UploadUserFile } from "element-plus";
 import ProjectDetail from "./components/ProjectDetail.vue";
+import { svg } from "d3";
 
 interface Node {
   name: string;
@@ -162,7 +163,7 @@ function render(data: GraphData) {
     const sourceName = d3.select(event.currentTarget)["_groups"][0][0][
       "__data__"
     ].name;
-    // 因为选择器中不能出现 & . 需要处理
+    // 因为选择器中不能出现 & . 需要处理, 添加 #, 因为在d3.select中使用id选择器
     const _name = "#" + sourceName.replace(/[^a-zA-Z0-9]/g, "");
     const circle = d3.select(_name);
     const r = circle.attr("r");
