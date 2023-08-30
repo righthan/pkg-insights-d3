@@ -18,7 +18,8 @@
     "element-plus": "^2.3.9",
     "html2canvas": "^1.4.1",
     "screenfull": "^6.0.2",
-    "vue": "^3.3.4"
+    "vue": "^3.3.4",
+    "vuex": "^4.0.2"
   },
   "devDependencies": {
     "@tsconfig/node18": "^18.2.0",

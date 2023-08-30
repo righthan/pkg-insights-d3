@@ -24,6 +24,8 @@ declare module 'vue' {
     ElSwitch: typeof import('element-plus/es')['ElSwitch']
     ElTag: typeof import('element-plus/es')['ElTag']
     ElUpload: typeof import('element-plus/es')['ElUpload']
+    Graph: typeof import('./src/components/Graph.vue')['default']
+    Header: typeof import('./src/components/Header.vue')['default']
     PkgDetail: typeof import('./src/components/PkgDetail.vue')['default']
     ProjectDetail: typeof import('./src/components/ProjectDetail.vue')['default']
   }

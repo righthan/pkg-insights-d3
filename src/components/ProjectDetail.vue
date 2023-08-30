@@ -1,7 +1,6 @@
 <template>
   <el-descriptions title="根项目详情" :column="1" border>
     <el-descriptions-item label="项目名称" min-width="150">
-      <!-- {{ data.entryPackageName }} -->
       <el-link type="primary" @click="handleClickLink(getRootProjectFullname())" :underline="false">{{
         data.entryPackageName
       }}</el-link>

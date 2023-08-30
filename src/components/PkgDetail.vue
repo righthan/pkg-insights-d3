@@ -11,7 +11,7 @@
         data.isCircle ? "是" : "否"
       }}</el-tag>
     </el-descriptions-item>
-    <el-descriptions-item label="依赖下是否多版本">
+    <el-descriptions-item label="依赖下是否有多版本">
       <el-tag :type="data.isMulPackage ? 'danger' : 'info'">{{
         data.isMulPackage ? "是" : "否"
       }}</el-tag>
