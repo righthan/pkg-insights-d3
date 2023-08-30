@@ -1,6 +1,6 @@
 # pkg-insights-d3
 
-此项目作为[dep-analyze-cli](https://github.com/15871687941/dep-analyze-cli-sourcecode)的前端展示页面， 使用 `D3.js`数据可视化工具展示依赖关系
+此项目作为[dep-analyze-cli](https://github.com/15871687941/dep-analyze-cli-sourcecode)的前端展示页面(不能单独运行)， 使用 `D3.js`数据可视化工具展示依赖关系
 
 ![screenshot](docs/images/screenshot.png)
 
@@ -17,7 +17,7 @@
 * 支持在页面修改项目分析层数
 * 支持自定义是否展示节点名称，指向箭头
 * 支持上传并渲染使用[dep-analyze-cli](https://github.com/15871687941/dep-analyze-cli-sourcecode)导出的本地json分析文件
-    
+
 ## 项目运行方式
 
 ```sh
@@ -39,8 +39,7 @@ npm run build
 
    **解决方法：**
 
-    在反复查看d3-zoom的文档，甚至源代码之后，发现通过鼠标平移缩放改变的是ZoomEvent的transform属性，单独设置图像的transform属性不会改变ZoomEvent的transform属性，再次查看文档和源代码，鼠标事件平移缩放保存在图像的 `__zoom`属性上，而ZoomEvent事件中的transform正是通过 `__zoom`属性计算的，所以在将节点定位到中心时，手动更新 `__zoom`就能解决问题。
-
+   在反复查看d3-zoom的文档，甚至源代码之后，发现通过鼠标平移缩放改变的是ZoomEvent的transform属性，单独设置图像的transform属性不会改变ZoomEvent的transform属性，再次查看文档和源代码，鼠标事件平移缩放保存在图像的 `__zoom`属性上，而ZoomEvent事件中的transform正是通过 `__zoom`属性计算的，所以在将节点定位到中心时，手动更新 `__zoom`就能解决问题。
 2. **提升图像的交互体验**
 
    为了使操作过程中图像有更好的交互效果，需要对依赖图中的节点图像进行改变填充颜色和图像半径大小，对边进行颜色高亮的操作，因此需要频繁查找和操作svg图像中的节点，为了提升效率，需要结合d3的 `select()`方法，给每一个节点都添加id属性，以唯一标识每个节点，因为需要更方便地通过节点名称和版本号查询节点，使用了这两个属性来设置id。 例如 `@types/axios&1.2.3`，需使用正则表达式，去除特殊字符，最终使用 `typesaxios123`作为id。
