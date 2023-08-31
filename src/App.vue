@@ -155,7 +155,7 @@ const reLoad = () => {
   d3.selectAll("g").remove();
   loading.value = true;
   // 重置svg的 __zoom防止重新导入数据时仍然在上一次的缩放数据中
-  const svg = d3.select("svg");
+  const svg = d3.select("#mainSvg");
   svg.node().__zoom.k = 1;
   svg.node().__zoom.x = 0;
   svg.node().__zoom.y = 0;
@@ -173,44 +173,40 @@ const reLoad = () => {
         @render-local-file="renderFile"
       />
     </el-header>
-    <el-container>
-      <el-main>
+    <el-container class="outside-container">
+      <el-main style="min-width: 1250px; min-height: 600px; padding-right: 0">
         <div class="container" v-loading="loading">
           <Graph :data="data" @get-node-detail="handleGetNodeDetail" />
-          <el-aside width="20vw">
-            <div class="detail-box">
-              <ProjectDetail
-                :data="projectDetail"
-                :isLocalFile="isLocalFile"
-                @refresh="changeDepth"
-                @hilight-cirle-links="handleViewCircleDep"
-                @search-node="search"
-              />
-              <!-- 本地文件缺乏具体节点数据, 所以不展示依赖详情, 根项目节点也不重复展示 -->
-              <div
-                v-show="
-                  nodeDetail.entryPackageName &&
-                  !isLocalFile &&
-                  nodeDetail.entryPackageName !== data.entryPackageName
-                "
-              >
-                <PkgDetail :data="nodeDetail" @refresh="search" />
-              </div>
-            </div>
-          </el-aside>
         </div>
       </el-main>
+      <el-aside width="20vw">
+        <div class="detail-box">
+          <ProjectDetail
+            :data="projectDetail"
+            :isLocalFile="isLocalFile"
+            @refresh="changeDepth"
+            @hilight-cirle-links="handleViewCircleDep"
+            @search-node="search"
+          />
+          <!-- 本地文件缺乏具体节点数据, 所以不展示依赖详情, 根项目节点也不重复展示 -->
+          <div
+            v-show="
+              nodeDetail.entryPackageName &&
+              !isLocalFile &&
+              nodeDetail.entryPackageName !== data.entryPackageName
+            "
+          >
+            <PkgDetail :data="nodeDetail" @refresh="search" />
+          </div>
+        </div>
+      </el-aside>
     </el-container>
   </el-container>
 </template>
 
 <style scoped>
-.el-main {
+.outside-container {
   margin-top: 3em;
-}
-.container {
-  display: flex;
-  gap: 1em;
 }
 
 .detail-box {

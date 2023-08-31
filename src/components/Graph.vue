@@ -5,7 +5,7 @@
       <el-button @click="downloadSvg" title="下载">下载</el-button>
     </div>
     <div ref="mainSvgRef">
-      <svg id="mainSvg" class="svg" width="75vw" height="78vh">
+      <svg id="mainSvg" class="svg" width="76vw" height="78vh">
         <defs>
           <marker
             id="triangle-gray"
@@ -133,7 +133,7 @@ const downloadSvg = () => {
 .svg-tools-box {
   position: absolute;
   top: 1em;
-  right: 1em;
+  right: 3em;
   z-index: 2;
   display: flex;
   gap: 0.1em;

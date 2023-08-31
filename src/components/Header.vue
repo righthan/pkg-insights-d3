@@ -1,8 +1,7 @@
 <template>
-  <h1>Dep-Analyze-Cli Insights</h1>
-  <el-row align="middle">
-    <el-col :span="8"></el-col>
-    <el-col :span="8">
+  <div>
+    <h1 style="margin-bottom: 0">Dep-Analyze-Cli Insights</h1>
+    <div class="header-container">
       <div class="search-box">
         <el-autocomplete
           v-model="searchKeyWords"
@@ -14,8 +13,6 @@
         />
         <el-button type="primary" @click="handleSearch">查找</el-button>
       </div>
-    </el-col>
-    <el-col :span="8">
       <div class="switch-box">
         <div class="switch">
           <span>展示名字</span><el-switch size="small" v-model="isShowName" />
@@ -44,8 +41,8 @@
           </el-upload>
         </div>
       </div>
-    </el-col>
-  </el-row>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -124,14 +121,24 @@ const handleExceed = (files: File[], uploadFiles: UploadUserFile[]) => {
 </script>
 
 <style scoped>
-.search-box {
+.header-container {
   display: flex;
+  min-width: 850px;
+  align-content: center;
+  justify-content: center;
+}
+.search-box {
+  width: 30%;
+  display: flex;
+  align-content: center;
   gap: 1em;
   margin: 1em;
 }
 .switch-box {
   margin: 1em;
   display: flex;
+  align-content: center;
+  align-items: center;
 }
 .switch > span {
   display: inline-block;
