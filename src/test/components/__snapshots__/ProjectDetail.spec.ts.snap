@@ -10,16 +10,19 @@ exports[`PkgDetail test > 组件渲染测试 1`] = `
     <table class=\\"el-descriptions__table is-bordered\\">
       <tbody>
         <tr>
-          <td style=\\"min-width: 150px;\\" class=\\"el-descriptions__cell el-descriptions__label is-bordered-label\\" colspan=\\"1\\">项目名称</td>
-          <td style=\\"min-width: 150px;\\" class=\\"el-descriptions__cell el-descriptions__content is-bordered-content\\" colspan=\\"NaN\\">包名</td>
+          <td style=\\"min-width: 130px;\\" class=\\"el-descriptions__cell el-descriptions__label is-bordered-label\\" colspan=\\"1\\">项目名称</td>
+          <td style=\\"min-width: 130px;\\" class=\\"el-descriptions__cell el-descriptions__content is-bordered-content\\" colspan=\\"0\\"><a data-v-460d2e40=\\"\\" class=\\"el-link el-link--primary\\">
+              <!--v-if--><span class=\\"el-link__inner\\">包名</span>
+              <!--v-if-->
+            </a></td>
         </tr>
         <tr>
           <td class=\\"el-descriptions__cell el-descriptions__label is-bordered-label\\" colspan=\\"1\\">版本</td>
-          <td class=\\"el-descriptions__cell el-descriptions__content is-bordered-content\\" colspan=\\"NaN\\">版本</td>
+          <td class=\\"el-descriptions__cell el-descriptions__content is-bordered-content\\" colspan=\\"0\\">版本</td>
         </tr>
         <tr>
           <td class=\\"el-descriptions__cell el-descriptions__label is-bordered-label\\" colspan=\\"1\\">分析依赖层数</td>
-          <td class=\\"el-descriptions__cell el-descriptions__content is-bordered-content\\" colspan=\\"NaN\\">
+          <td class=\\"el-descriptions__cell el-descriptions__content is-bordered-content\\" colspan=\\"0\\">
             <div data-v-460d2e40=\\"\\" class=\\"el-select el-select--small m-2\\">
               <div class=\\"select-trigger el-tooltip__trigger el-tooltip__trigger\\">
                 <!--v-if-->
@@ -43,14 +46,14 @@ exports[`PkgDetail test > 组件渲染测试 1`] = `
         </tr>
         <tr>
           <td class=\\"el-descriptions__cell el-descriptions__label is-bordered-label\\" colspan=\\"1\\">分析节点数</td>
-          <td class=\\"el-descriptions__cell el-descriptions__content is-bordered-content\\" colspan=\\"NaN\\">10</td>
+          <td class=\\"el-descriptions__cell el-descriptions__content is-bordered-content\\" colspan=\\"0\\">10</td>
         </tr>
         <tr>
           <td class=\\"el-descriptions__cell el-descriptions__label is-bordered-label\\" colspan=\\"1\\">是否有多版本依赖</td>
-          <td class=\\"el-descriptions__cell el-descriptions__content is-bordered-content\\" colspan=\\"NaN\\">
+          <td class=\\"el-descriptions__cell el-descriptions__content is-bordered-content\\" colspan=\\"0\\">
             <transition-stub data-v-460d2e40=\\"\\" name=\\"el-zoom-in-center\\" appear=\\"true\\" persisted=\\"false\\" css=\\"true\\"><span class=\\"el-tag el-tag--danger el-tag--light\\"><span class=\\"el-tag__content\\">是</span>
               <!--v-if--></span>
-            </transition-stub><span data-v-460d2e40=\\"\\">   <a data-v-460d2e40=\\"\\" class=\\"el-link el-link--success\\"><!--v-if--><span class=\\"el-link__inner\\">查看</span>
+            </transition-stub><span data-v-460d2e40=\\"\\"> &nbsp; <a data-v-460d2e40=\\"\\" class=\\"el-link el-link--success\\"><!--v-if--><span class=\\"el-link__inner\\">查看</span>
             <!--v-if--></a></span>
           </td>
         </tr>
@@ -59,9 +62,9 @@ exports[`PkgDetail test > 组件渲染测试 1`] = `
           <td class=\\"el-descriptions__cell el-descriptions__content is-bordered-content\\" colspan=\\"1\\">
             <transition-stub data-v-460d2e40=\\"\\" name=\\"el-zoom-in-center\\" appear=\\"true\\" persisted=\\"false\\" css=\\"true\\"><span class=\\"el-tag el-tag--danger el-tag--light\\"><span class=\\"el-tag__content\\">是</span>
               <!--v-if--></span>
-            </transition-stub><span data-v-460d2e40=\\"\\" class=\\"desc-link\\">   <a data-v-460d2e40=\\"\\" class=\\"el-link el-link--success\\"><!--v-if--><span class=\\"el-link__inner\\">查看</span>
-            <!--v-if--></a>     <a data-v-460d2e40=\\"\\" class=\\"el-link el-link--success\\">
-              <!--v-if--><span class=\\"el-link__inner\\">图像</span>
+            </transition-stub><span data-v-460d2e40=\\"\\" class=\\"desc-link\\"> &nbsp; <a data-v-460d2e40=\\"\\" class=\\"el-link el-link--success\\"><!--v-if--><span class=\\"el-link__inner\\">查看</span>
+            <!--v-if--></a> &nbsp;&nbsp;&nbsp; <a data-v-460d2e40=\\"\\" class=\\"el-link el-link--success\\">
+              <!--v-if--><span class=\\"el-link__inner\\">全部图像</span>
               <!--v-if-->
             </a></span>
           </td>
@@ -82,7 +85,7 @@ exports[`PkgDetail test > 组件渲染测试 1`] = `
               <tbody>
                 <tr>
                   <td class=\\"el-descriptions__cell el-descriptions__label is-bordered-label\\" colspan=\\"1\\">链接1</td>
-                  <td class=\\"el-descriptions__cell el-descriptions__content is-bordered-content\\" colspan=\\"NaN\\">
+                  <td class=\\"el-descriptions__cell el-descriptions__content is-bordered-content\\" colspan=\\"0\\">
                     <div data-v-460d2e40=\\"\\" class=\\"links-box\\"><a data-v-460d2e40=\\"\\" class=\\"el-link el-link--primary\\">
                         <!--v-if--><span class=\\"el-link__inner\\"></span>
                         <!--v-if-->
@@ -129,7 +132,7 @@ exports[`PkgDetail test > 组件渲染测试 1`] = `
       <table class=\\"el-descriptions__table is-bordered\\">
         <tbody>
           <tr>
-            <th class=\\"el-descriptions__cell el-descriptions__label is-bordered-label is-vertical-label\\" colspan=\\"1\\">循环依赖详情</th>
+            <th class=\\"el-descriptions__cell el-descriptions__label is-bordered-label is-vertical-label\\" colspan=\\"1\\">循环依赖详情(点击图标渲染)</th>
           </tr>
           <tr>
             <td class=\\"el-descriptions__cell el-descriptions__content is-bordered-content is-vertical-content\\" colspan=\\"1\\">
@@ -137,7 +140,11 @@ exports[`PkgDetail test > 组件渲染测试 1`] = `
                 <div class=\\"el-scrollbar__wrap el-scrollbar__wrap--hidden-default\\" style=\\"max-height: 150px;\\">
                   <div class=\\"el-scrollbar__view\\" style=\\"\\">
                     <div data-v-460d2e40=\\"\\">
-                      <div data-v-460d2e40=\\"\\" class=\\"links\\"><span data-v-460d2e40=\\"\\">[</span><a data-v-460d2e40=\\"\\" class=\\"el-link el-link--primary\\">
+                      <div data-v-460d2e40=\\"\\" class=\\"links\\"><button data-v-460d2e40=\\"\\" ariadisabled=\\"false\\" type=\\"button\\" class=\\"el-button el-button--danger el-button--small is-circle\\" title=\\"渲染图像\\"><i class=\\"el-icon\\"><svg xmlns=\\"http://www.w3.org/2000/svg\\" viewBox=\\"0 0 1024 1024\\">
+                              <path fill=\\"currentColor\\" d=\\"m512 747.84 228.16 119.936a6.4 6.4 0 0 0 9.28-6.72l-43.52-254.08 184.512-179.904a6.4 6.4 0 0 0-3.52-10.88l-255.104-37.12L517.76 147.904a6.4 6.4 0 0 0-11.52 0L392.192 379.072l-255.104 37.12a6.4 6.4 0 0 0-3.52 10.88L318.08 606.976l-43.584 254.08a6.4 6.4 0 0 0 9.28 6.72L512 747.84zM313.6 924.48a70.4 70.4 0 0 1-102.144-74.24l37.888-220.928L88.96 472.96A70.4 70.4 0 0 1 128 352.896l221.76-32.256 99.2-200.96a70.4 70.4 0 0 1 126.208 0l99.2 200.96 221.824 32.256a70.4 70.4 0 0 1 39.04 120.064L774.72 629.376l37.888 220.928a70.4 70.4 0 0 1-102.144 74.24L512 820.096l-198.4 104.32z\\"></path>
+                            </svg></i>
+                          <!--v-if-->
+                        </button><span data-v-460d2e40=\\"\\">[</span><a data-v-460d2e40=\\"\\" class=\\"el-link el-link--primary\\">
                           <!--v-if--><span class=\\"el-link__inner\\">A</span>
                           <!--v-if-->
                         </a><a data-v-460d2e40=\\"\\" class=\\"el-link el-link--primary arrow\\">
@@ -149,7 +156,11 @@ exports[`PkgDetail test > 组件渲染测试 1`] = `
                         </a><span data-v-460d2e40=\\"\\">]</span></div>
                     </div>
                     <div data-v-460d2e40=\\"\\">
-                      <div data-v-460d2e40=\\"\\" class=\\"links\\"><span data-v-460d2e40=\\"\\">[</span><a data-v-460d2e40=\\"\\" class=\\"el-link el-link--primary\\">
+                      <div data-v-460d2e40=\\"\\" class=\\"links\\"><button data-v-460d2e40=\\"\\" ariadisabled=\\"false\\" type=\\"button\\" class=\\"el-button el-button--danger el-button--small is-circle\\" title=\\"渲染图像\\"><i class=\\"el-icon\\"><svg xmlns=\\"http://www.w3.org/2000/svg\\" viewBox=\\"0 0 1024 1024\\">
+                              <path fill=\\"currentColor\\" d=\\"m512 747.84 228.16 119.936a6.4 6.4 0 0 0 9.28-6.72l-43.52-254.08 184.512-179.904a6.4 6.4 0 0 0-3.52-10.88l-255.104-37.12L517.76 147.904a6.4 6.4 0 0 0-11.52 0L392.192 379.072l-255.104 37.12a6.4 6.4 0 0 0-3.52 10.88L318.08 606.976l-43.584 254.08a6.4 6.4 0 0 0 9.28 6.72L512 747.84zM313.6 924.48a70.4 70.4 0 0 1-102.144-74.24l37.888-220.928L88.96 472.96A70.4 70.4 0 0 1 128 352.896l221.76-32.256 99.2-200.96a70.4 70.4 0 0 1 126.208 0l99.2 200.96 221.824 32.256a70.4 70.4 0 0 1 39.04 120.064L774.72 629.376l37.888 220.928a70.4 70.4 0 0 1-102.144 74.24L512 820.096l-198.4 104.32z\\"></path>
+                            </svg></i>
+                          <!--v-if-->
+                        </button><span data-v-460d2e40=\\"\\">[</span><a data-v-460d2e40=\\"\\" class=\\"el-link el-link--primary\\">
                           <!--v-if--><span class=\\"el-link__inner\\">D</span>
                           <!--v-if-->
                         </a><a data-v-460d2e40=\\"\\" class=\\"el-link el-link--primary arrow\\">

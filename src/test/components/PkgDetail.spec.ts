@@ -38,7 +38,7 @@ describe('PkgDetail test', () => {
         expect(wrapper.findAll('.el-descriptions__label')[2].text()).toBe('是否有循环依赖');
         expect(wrapper.findAll('.el-tag')[0].text()).toBe(data.isCircle ? '是' : '否');
 
-        expect(wrapper.findAll('.el-descriptions__label')[3].text()).toBe('依赖下是否多版本');
+        expect(wrapper.findAll('.el-descriptions__label')[3].text()).toBe('依赖下是否有多版本');
         expect(wrapper.findAll('.el-tag')[1].text()).toBe(data.isMulPackage ? '是' : '否');
 
         const links = wrapper.findAll('.links-box .el-link');

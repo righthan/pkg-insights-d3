@@ -36,7 +36,7 @@ export default defineConfig({
     }),
   ],
   test:{
-    environment: 'happy-dom',
+    environment: 'jsdom',
     deps:{
       inline: ['element-plus']
     }

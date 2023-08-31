@@ -61,8 +61,8 @@ describe('PkgDetail test', () => {
         const vm = wrapper.vm as any;
         const flag = vm.showMulPackage
         // 模拟点击"查看"链接
-        const viewMulPackageLink = wrapper.find('.el-link');
-        await viewMulPackageLink.trigger('click')
+        const viewMulPackageLink = wrapper.findAll('.el-link');
+        await viewMulPackageLink[1].trigger('click')
         expect(vm.showMulPackage).toBe(!flag);
     });
     test('点击"查看"链接时正确触发showCirleDep改变', async () => {
@@ -104,7 +104,7 @@ describe('PkgDetail test', () => {
         
         await hightCirleLinksLink.trigger('click');
     
-        // 验证handleHightCirleLinks事件是否被正确触发
-        expect(wrapper.emitted('hilightCirleLinks')).toBeTruthy();
+        // 验证highLightCirleLinks事件是否被正确触发
+        expect(wrapper.emitted('highLightCirleLinks')).toBeTruthy();
       });
 })
