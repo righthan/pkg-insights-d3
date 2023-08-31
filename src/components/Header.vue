@@ -21,7 +21,7 @@
           <span>展示箭头</span><el-switch size="small" v-model="isShowArrow" />
         </div>
         <div class="switch">
-          <span>定位到中心点</span
+          <span>将查找的节点定位到图像中心</span
           ><el-switch size="small" v-model="isToCenter" />
         </div>
         <div class="upload-btn">

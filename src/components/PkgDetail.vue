@@ -1,7 +1,7 @@
 <template>
   <el-descriptions title="依赖详情" :column="1" border>
-    <el-descriptions-item label="包名" min-width="150">
-      {{ data.entryPackageName }}
+    <el-descriptions-item label="包名" min-width="150" >
+      <span style="word-break: break-all;">{{ data.entryPackageName }}</span>
     </el-descriptions-item>
     <el-descriptions-item label="版本">
       {{ data.entryVersion }}
