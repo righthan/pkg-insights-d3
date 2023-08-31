@@ -1,5 +1,4 @@
 export interface RootStateTypes {
-  isLoading: boolean;
   isLocalFile: boolean;
   isShowName: boolean;
   isShowArrow: boolean;

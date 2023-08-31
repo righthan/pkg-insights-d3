@@ -8,21 +8,17 @@ import { type RootStateTypes } from "@/store/interface";
 
 export const store = createStore<RootStateTypes>({
   state: {
-    isLoading: false,
     isLocalFile: false,
     isShowName: true,
     isShowArrow: true,
     isToCenter: true,
     pkgFocused: "",
-    graph: {},
+    graph: null,
   },
 
   getters: {},
 
   mutations: {
-    updateIsLoadingState(state: RootStateTypes, val: boolean) {
-      state.isLoading = val;
-    },
     updateIsLoacalFileState(state: RootStateTypes, val: boolean) {
       state.isLocalFile = val;
     },

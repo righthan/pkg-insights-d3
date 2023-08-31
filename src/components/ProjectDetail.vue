@@ -1,6 +1,6 @@
 <template>
   <el-descriptions title="根项目详情" :column="1" border>
-    <el-descriptions-item label="项目名称" min-width="150">
+    <el-descriptions-item label="项目名称" min-width="130">
       <el-link type="primary" @click="handleClickLink(getRootProjectFullname())" :underline="false">{{
         data.entryPackageName
       }}</el-link>
@@ -53,9 +53,9 @@
         &nbsp;&nbsp;&nbsp;
         <el-link
           type="success"
-          @click="handleHightCirleLinks"
+          @click="handleHighLightCirleLinks(-1)"
           :underline="false"
-          >图像</el-link
+          >全部图像</el-link
         >
       </span>
     </el-descriptions-item>
@@ -82,12 +82,13 @@
       </el-descriptions>
     </el-scrollbar>
   </div>
-  <div v-show="showCirleDep && data.isMulPackage">
+  <div v-show="showCirleDep && data.isCircle">
     <el-descriptions direction="vertical" :column="1" border>
-      <el-descriptions-item label="循环依赖详情">
+      <el-descriptions-item label="循环依赖详情(点击图标渲染)">
         <el-scrollbar max-height="150px">
-          <div v-for="circle in data.circleDepList">
-            <div class="links">
+          <div v-for="(circle, index) in data.circleDepList">
+            <div class="links" :key="index">
+            <el-button @click="handleHighLightCirleLinks(index)" type="danger" :icon="Star" title="渲染图像" circle size="small" />
               <span>[</span>
               <el-link
                 v-for="(node, index) in circle"
@@ -109,6 +110,8 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import {Star} from "@element-plus/icons-vue"
+
 const showCirleDep = ref(false);
 const showMulPackage = ref(false);
 
@@ -127,14 +130,17 @@ const props = defineProps<{
   isLocalFile: boolean;
 }>();
 
-const emit = defineEmits(["refresh", "hilightCirleLinks", "searchNode"]);
+const emit = defineEmits(["refresh", "highLightCirleLinks", "searchNode"]);
 
 const changeSelect = (selectedDepth: number) => {
   emit("refresh", selectedDepth);
+  showCirleDep.value = false
+  showMulPackage.value = false
 };
 
-const handleHightCirleLinks = () => {
-  emit("hilightCirleLinks");
+// 高亮循环依赖, 如果传入index=-1, 渲染全部依赖, 否则只渲染指定的一组依赖
+const handleHighLightCirleLinks = (index:number) => {
+  emit("highLightCirleLinks", index);
 };
 
 function handleClickLink(item: string) {

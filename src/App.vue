@@ -44,6 +44,9 @@ let data: GraphData = {
 
 onMounted(async () => {
   getDepGraph("default", 10).then((resp: any) => {
+    if (store.state.graph !== null) {
+      d3.select("g").remove();
+    }
     // 自动补全列表
     dependenciesList.value = resp.nodes.map((node: Node) => {
       return { value: node.name };
@@ -51,7 +54,6 @@ onMounted(async () => {
     data = { ...resp };
     // 获取项目详情
     projectDetail.value = { ...resp };
-    // graph = render(data);
     loading.value = false;
   });
 });
@@ -98,11 +100,18 @@ const changeDepth = (depth: number) => {
   });
 };
 
-const handleViewCircleDep = () => {
-  // 将循环依赖节点circleDepList:[['a','b','c','a'], ['a','b','d','a']]处理成边['ab'],'bc'...](需去重)
+const handleViewCircleDep = async (index: number) => {
+  // 渲染前需将循环依赖节点circleDepList:[['a','b','c','a'], ['a','b','d','a']]处理成边['ab'],'bc'...](需去重)
   const circleDepLinks: Array<string> = [];
   const map = new Map();
-  projectDetail.value.circleDepList
+  // index为-1渲染全部循环依赖, 否则渲染指定循环依赖
+  let circleDepList: Array<string[]> = [[]];
+  if (index === -1) {
+    circleDepList = projectDetail.value.circleDepList;
+  } else if (index >= 0 && index <= projectDetail.value.circleDepList.length) {
+    circleDepList = [projectDetail.value.circleDepList[index]];
+  }
+  circleDepList
     .map((circleArr) => {
       for (let i = 0; i < circleArr.length - 1; i++) {
         const node1 = circleArr[i];
@@ -116,6 +125,18 @@ const handleViewCircleDep = () => {
     })
     .flat(1);
   store.state.graph.hightlightCircleLinks(circleDepLinks);
+  // 如果渲染特定依赖, 将其定位到图像中间
+  if (index !== -1) {
+    for (let i = 0; i < circleDepList[0].length - 1; i++) {
+      setTimeout(() => {
+        // 第二个参数表示只使用第一个点作为定位
+        store.state.graph.scaleAndCenterNode(
+          circleDepList[0][i],
+          i > 0 ? false : true
+        );
+      }, 500 * i);
+    }
+  }
 };
 
 const renderFile = (uploadFile: any) => {
@@ -185,7 +206,7 @@ const reLoad = () => {
             :data="projectDetail"
             :isLocalFile="isLocalFile"
             @refresh="changeDepth"
-            @hilight-cirle-links="handleViewCircleDep"
+            @high-light-cirle-links="handleViewCircleDep"
             @search-node="search"
           />
           <!-- 本地文件缺乏具体节点数据, 所以不展示依赖详情, 根项目节点也不重复展示 -->
