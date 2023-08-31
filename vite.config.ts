@@ -11,16 +11,16 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 // https://vitejs.dev/config/
 export default defineConfig({
   base: './',
-  server: { 
-    //用来配置跨域
-    proxy: {
-      '/api': {
-        target: 'http://127.0.0.1:50000',//目标服务器地址
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '')
-      },
-    }
-  },
+  // server: { 
+  //   //用来配置跨域
+  //   proxy: {
+  //     '/api': {
+  //       target: 'http://127.0.0.1:50000',//目标服务器地址
+  //       changeOrigin: true,
+  //       rewrite: (path) => path.replace(/^\/api/, '')
+  //     },
+  //   }
+  // },
   build:{
     target: "es2015",
     minify: false  

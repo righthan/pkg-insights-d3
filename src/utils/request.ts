@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 const request = axios.create({
-    // baseURL: import.meta.env.BASE_URL 
+    baseURL: import.meta.env.BASE_URL 
     // baseURL: 'http://127.0.0.1:50000',
-    baseURL: 'http://localhost:5173/api',
+    // baseURL: 'http://localhost:5173/api',
     // baseURL: "https://www.fastmock.site/mock/ecf8883ff9dc69f1a831283178b60acd/test/",
 })
 

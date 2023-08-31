@@ -201,7 +201,7 @@ const reLoad = () => {
         </div>
       </el-main>
       <el-aside width="20vw">
-        <div class="detail-box">
+        <div class="detail-box" v-loading="loading">
           <ProjectDetail
             :data="projectDetail"
             :isLocalFile="isLocalFile"
